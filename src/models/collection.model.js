@@ -12,6 +12,6 @@ const collectionSchema = new mongoose.Schema(
     {timestamps: true}
 )
 
-export default mongoose.model("collection", collectionSchema)
+export default mongoose.model("Collection", collectionSchema)
 
 // "collection" stored in database is converted into lowercase and plural
