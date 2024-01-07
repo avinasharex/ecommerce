@@ -2,6 +2,11 @@ import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
+export const cookieOptions = {
+    expires: new Date(Date.now() + 3 * 60 * 60 * 1000),
+    httpOnly: true
+}
+
 export const signup = asyncHandler(async(req,res)=>{
     // get data from user
     // validation
@@ -31,5 +36,35 @@ export const signup = asyncHandler(async(req,res)=>{
         success: true,
         message: "User registered successfully",
         user
+    })
+})
+
+export const login = asyncHandler(async(req,res)=>{
+    const {email, password} = req.body
+
+    if(!email || !password){
+        throw new ApiError("All fields are required")
+    }
+
+    const user = await User.findOne({email}).select("+password")
+
+    if(!user){
+        throw new ApiError("Invalid credentials", 400)
+    }
+
+    const isPasswordMatched = await user.comparePassword(password)
+
+    if(!isPasswordMatched){
+        throw new ApiError("Invalid credentials", 400)
+    }
+
+    const token = user.generateJWTtoken()
+    user.password = undefined
+    res.cookie("token", token, cookieOptions)
+    return res.status(200).json({
+        success: true,
+        message: "User logged in successfully",
+        user,
+        token
     })
 })
