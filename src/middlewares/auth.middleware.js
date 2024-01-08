@@ -20,3 +20,9 @@ export const isLoggedIn = asyncHandler(async(req,res,next)=>{
         throw new ApiError(error.message, 400)
     }
 })
+
+export const authorize = (...requiredRoles)=> asyncHandler(async(req,res,next)=>{
+    if(!requiredRoles.includes(req.user.role)){
+        throw new ApiError("You are not authoized to access this resource", 500)
+    }
+})
